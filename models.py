@@ -33,7 +33,7 @@ class Net(nn.Module):
         self.pool1 = nn.MaxPool2d(2)
         #Ow, Oh = Ow // 2, Oh // 2
 
-        self.drop1 = nn.Dropout(p=0.2)
+        self.bn1 = nn.BatchNorm2d(32)
 
         self.conv2 = nn.Conv2d(32, 48, 5) # S=1, P=0
         #Ow, Oh = (Ow - 5 + 2*0) // 1 + 1, (Oh - 5 + 2*0) // 1 + 1
@@ -41,15 +41,15 @@ class Net(nn.Module):
         #self.pool2 = nn.MaxPool2d(2)
         #Ow, Oh = Ow // 2, Oh // 2
 
-        self.drop2 = nn.Dropout(p=0.2)
-
+        self.bn2 = nn.BatchNorm2d(48)
+        
         self.conv3 = nn.Conv2d(48, 56, 5) # S=1, P=0
         #Ow, Oh = (Ow - 5 + 2*0) // 1 + 1, (Oh - 5 + 2*0) // 1 + 1
 
         #self.pool3 = nn.MaxPool2d(2)
         #Ow, Oh = Ow // 2, Oh // 2
 
-        self.drop3 = nn.Dropout(p=0.2)
+        self.bn3 = nn.BatchNorm2d(56)
 
         self.conv4 = nn.Conv2d(56, 64, 3) # S=1, P=0
         #Ow, Oh = (Ow - 3 + 2*0) // 1 + 1, (Oh - 3 + 2*0) // 1 + 1
@@ -57,7 +57,7 @@ class Net(nn.Module):
         #self.pool4 = nn.MaxPool2d(2)
         #Ow, Oh = Ow // 2, Oh // 2
 
-        self.drop4 = nn.Dropout(p=0.2)
+        self.bn4 = nn.BatchNorm2d(64)
 
         self.conv5 = nn.Conv2d(64, 64, 3) # S=1, P=0
         #Ow, Oh = (Ow - 3 + 2*0) // 1 + 1, (Oh - 3 + 2*0) // 1 + 1
@@ -74,22 +74,22 @@ class Net(nn.Module):
         x = self.conv1(x)
         x = F.relu(self.pool1(x))
 
-        x = self.drop1(x)
+        x = self.bn1(x)
 
         x = self.conv2(x)
         x = F.relu(self.pool1(x))
 
-        x = self.drop2(x)
+        x = self.bn2(x)
 
         x = self.conv3(x)
         x = F.relu(self.pool1(x))
 
-        x = self.drop3(x)
+        x = self.bn3(x)
 
         x = self.conv4(x)
         x = F.relu(self.pool1(x))
 
-        x = self.drop4(x)
+        x = self.bn4(x)
 
         x = F.relu(self.conv5(x))
 
