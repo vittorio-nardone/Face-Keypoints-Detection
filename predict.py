@@ -31,13 +31,16 @@ import cv2
 import matplotlib.pyplot as plt
 
 
-def loadModel(filename):
+def loadModel(filename, gpu):
 
     net = Net()
     net.load_state_dict(torch.load(filename))
     net.eval()
 
     print("Network elements:", net)
+
+    if (gpu == True):
+    	net.cuda()
 
     return net
 
@@ -85,14 +88,13 @@ def predict(filename, model, detector, gpu):
         roi_t = torch.from_numpy(roi_t).type(torch.FloatTensor)
 
         ## DONE: Make facial keypoint predictions using your loaded, trained network
-        if (gpu == true):
-            model.cuda()
-            roi_t.cuda()
+        if (gpu == True):
+            roi_t = roi_t.cuda()
 
         predicted_key_pts = model(roi_t)
 
-        if (gpu == true):
-            predicted_key_pts.cpu()
+        if (gpu == True):
+            predicted_key_pts = predicted_key_pts.cpu()
                     
         predicted_key_pts = predicted_key_pts.view(predicted_key_pts.size()[0], 68, -1).detach().numpy().squeeze()
         predicted_key_pts = predicted_key_pts*50.0+100
@@ -116,7 +118,7 @@ def main():
     face_cascade = loadFaceDetector()
 
     #Load model checkpoint
-    model = loadModel(in_arg.model)
+    model = loadModel(in_arg.model, in_arg.gpu)
 
     #Prediction
     predict(in_arg.input, model, face_cascade, in_arg.gpu)
