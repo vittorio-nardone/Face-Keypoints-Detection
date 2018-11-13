@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # PROGRAMMER: Vittorio Nardone
-# DATE CREATED: 05/07/2018
+# DATE CREATED: 13/11/2018
 # REVISED DATE:             <=(Date Revised - if any)
 # PURPOSE: Use a trained network to detect facial keypoints for an input image
 #
@@ -50,7 +50,7 @@ def loadFaceDetector(filename=""):
 
     return face_cascade
 
-def predict(filename, model, detector):
+def predict(filename, model, detector, gpu):
 
     # load in color image for face detection
     image = cv2.imread(filename)
@@ -85,7 +85,15 @@ def predict(filename, model, detector):
         roi_t = torch.from_numpy(roi_t).type(torch.FloatTensor)
 
         ## DONE: Make facial keypoint predictions using your loaded, trained network
+        if (gpu == true):
+            model.cuda()
+            roi_t.cuda()
+
         predicted_key_pts = model(roi_t)
+
+        if (gpu == true):
+            predicted_key_pts.cpu()
+                    
         predicted_key_pts = predicted_key_pts.view(predicted_key_pts.size()[0], 68, -1).detach().numpy().squeeze()
         predicted_key_pts = predicted_key_pts*50.0+100
 
@@ -111,7 +119,7 @@ def main():
     model = loadModel(in_arg.model)
 
     #Prediction
-    predict(in_arg.input, model, face_cascade)
+    predict(in_arg.input, model, face_cascade, in_arg.gpu)
 
 # Command line arguments parser
 def get_input_args():
@@ -150,7 +158,7 @@ def get_input_args():
         error_list.append("predict.py: error: argument: model: file not found '{}'".format(in_arg.model))
 
     # Check GPU
-    if in_arg.gpu and not mh.gpu_available():
+    if in_arg.gpu and not torch.cuda.is_available():
         error_list.append("predict.py: error: argument: --gpu: GPU not available")
 
     # Print errors
